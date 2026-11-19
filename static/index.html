@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hues & Cues</title>
+  <link rel="manifest" href="/static/manifest.json?v=11">
+  <meta name="theme-color" content="#000000">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/style.css?v=11">
+</head>
+<body class="bg-black text-neutral-100 flex flex-col h-screen overflow-hidden select-none antialiased font-sans">
+
+  <!-- Header -->
+  <header class="h-14 px-6 flex items-center justify-between border-b border-neutral-800 bg-neutral-950/80 backdrop-blur z-30 shrink-0">
+    <div class="flex items-center gap-4">
+      <div class="font-bold tracking-widest text-sm uppercase text-neutral-200">
+        HUES & CUES
+      </div>
+      <span id="header-mode-badge" class="text-xs px-2 py-0.5 rounded bg-neutral-800 text-neutral-400 font-mono">
+        TV
+      </span>
+    </div>
+
+    <!-- Center Status & Clues -->
+    <div id="header-round-info" class="hidden items-center gap-6">
+      <div class="text-xs font-mono text-neutral-400">
+        ROUND <span id="current-round-num" class="text-white font-bold">1</span>/<span id="total-rounds-num" class="text-white font-bold">6</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div id="banner-cue-1" class="hidden px-3 py-1 rounded bg-neutral-900 border border-neutral-700 text-neutral-100 text-sm font-semibold tracking-wide">
+          <span class="text-neutral-500 font-mono text-xs uppercase mr-1">Cue 1:</span>
+          <span id="banner-cue-1-text"></span>
+        </div>
+        <div id="banner-cue-2" class="hidden px-3 py-1 rounded bg-neutral-900 border border-neutral-700 text-neutral-100 text-sm font-semibold tracking-wide">
+          <span class="text-neutral-500 font-mono text-xs uppercase mr-1">Cue 2:</span>
+          <span id="banner-cue-2-text"></span>
+        </div>
+      </div>
+
+      <div id="banner-turn-indicator" class="text-xs font-medium text-neutral-300 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-neutral-400"></span>
+        <span id="banner-turn-indicator-text"></span>
+      </div>
+    </div>
+
+    <!-- Utility Controls -->
+    <div class="flex items-center gap-2">
+      <button id="btn-fullscreen-toggle" class="btn-header-action" title="Schermo Intero">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+        <span>Fullscreen</span>
+      </button>
+      <button id="btn-sound-toggle" class="btn-header-action" title="Attiva/Disattiva Audio">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <span id="sound-toggle-text">Audio</span>
+      </button>
+      <button id="btn-open-rules" class="btn-header-action" title="Regole di Gioco">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <span>Regole</span>
+      </button>
+      <button id="btn-exit-game" class="hidden btn-header-action btn-danger" title="Esci al Menu">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span>Esci</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main id="app-container" class="flex-1 relative flex flex-col overflow-hidden">
+
+    <!-- VIEW 1: Main Menu -->
+    <div id="view-main-menu" class="flex-1 flex flex-col items-center justify-center p-8 text-center max-w-sm mx-auto w-full">
+      <h2 class="text-2xl font-bold tracking-tight mb-1 text-white">Hues & Cues</h2>
+      <p class="text-neutral-500 text-xs mb-8">Multiplayer color guessing game</p>
+
+      <div class="w-full flex flex-col gap-2.5">
+        <button id="btn-menu-host" class="btn-clean-primary w-full py-3 text-sm font-semibold">
+          Host TV Room
+        </button>
+        <button id="btn-menu-offline" class="btn-clean-secondary w-full py-2.5 text-sm font-medium">
+          Pass & Play
+        </button>
+        <button id="btn-menu-join" class="btn-clean-secondary w-full py-2.5 text-sm font-medium">
+          Join with Room Code
+        </button>
+      </div>
+
+      <div class="mt-8 text-[11px] font-mono text-neutral-600">
+        480 Colors &bull; 3–10 Players
+      </div>
+    </div>
+
+    <!-- VIEW 2: Pass & Play Setup -->
+    <div id="view-offline-setup" class="hidden flex-1 flex flex-col p-6 max-w-sm mx-auto w-full justify-center">
+      <div class="w-full flex justify-between items-center mb-4">
+        <button id="btn-back-from-setup" class="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 transition">
+          &larr; Indietro
+        </button>
+        <span class="text-[11px] font-mono text-neutral-500 uppercase">Pass & Play Setup</span>
+      </div>
+
+      <div class="flex gap-2 mb-4">
+        <input id="input-offline-player-name" type="text" placeholder="Player name..." maxlength="15"
+          class="flex-1 bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-neutral-500">
+        <button id="btn-add-offline-player" class="btn-clean-primary text-xs px-4 py-2">Add</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto mb-4 max-h-56">
+        <div class="text-[11px] font-mono uppercase text-neutral-500 mb-2">Players (<span id="offline-player-count">0</span>/10)</div>
+        <div id="offline-player-list" class="flex flex-col gap-1.5"></div>
+      </div>
+
+      <button id="btn-start-offline-game" class="btn-clean-primary w-full py-3 text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed">
+        Start (Requires 3+ Players)
+      </button>
+    </div>
+
+    <!-- VIEW 3: Host Room Lobby (Smart TV Screen) -->
+    <div id="view-host-lobby" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center max-w-lg mx-auto w-full">
+      <div class="w-full flex justify-between items-center mb-4">
+        <button id="btn-back-from-host" class="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 transition">
+          &larr; Indietro
+        </button>
+        <span class="text-[11px] font-mono text-neutral-500 uppercase">Host TV Setup</span>
+      </div>
+
+      <div class="border border-neutral-800 bg-neutral-950 p-8 rounded-xl w-full mb-6">
+        <div class="text-[11px] font-mono uppercase text-neutral-500 tracking-wider mb-2">Room Code</div>
+        <div id="host-room-code" class="text-5xl font-mono font-bold tracking-widest text-white mb-6">HUES</div>
+        
+        <div class="flex justify-center mb-4">
+          <canvas id="host-qr-canvas" class="rounded bg-white p-2 w-48 h-48"></canvas>
+        </div>
+        <div id="host-join-url" class="text-xs font-mono text-neutral-500 select-all">http://192.168.1.10:8000/?room=HUES</div>
+      </div>
+
+      <div class="w-full mb-6">
+        <div class="text-[11px] font-mono uppercase text-neutral-500 tracking-wider mb-2">Connected (<span id="host-player-count">0</span>/10)</div>
+        <div id="host-player-list" class="flex flex-wrap gap-2 justify-center"></div>
+      </div>
+
+      <button id="btn-host-start-game" class="btn-clean-primary w-full py-3 text-sm font-semibold disabled:opacity-40">
+        Start Game
+      </button>
+    </div>
+
+    <!-- VIEW 4: Join Room Screen (Mobile Controller) -->
+    <div id="view-join-room" class="hidden flex-1 flex flex-col justify-center p-6 max-w-xs mx-auto w-full">
+      <div class="w-full flex justify-between items-center mb-4">
+        <button id="btn-back-from-join" class="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white px-2.5 py-1 rounded bg-neutral-900 border border-neutral-800 transition">
+          &larr; Indietro
+        </button>
+        <span class="text-[11px] font-mono text-neutral-500 uppercase">Join Room</span>
+      </div>
+
+      <div class="flex flex-col gap-3 border border-neutral-800 bg-neutral-950 p-5 rounded-lg">
+        <div>
+          <label class="text-[11px] font-mono uppercase text-neutral-500 block mb-1">Code</label>
+          <input id="input-join-code" type="text" placeholder="HUES" maxlength="8"
+            class="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-center font-mono font-bold text-base uppercase text-white focus:outline-none focus:border-neutral-500">
+        </div>
+        <div>
+          <label class="text-[11px] font-mono uppercase text-neutral-500 block mb-1">Nickname</label>
+          <input id="input-join-name" type="text" placeholder="Name" maxlength="15"
+            class="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-neutral-500">
+        </div>
+
+        <button id="btn-submit-join" class="btn-clean-primary w-full py-2.5 text-xs font-semibold mt-2">
+          Join
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 5: Active Game Arena (TV Full-Bleed Canvas Board + Minimal HUD) -->
+    <div id="view-game-arena" class="hidden flex-1 relative flex flex-col overflow-hidden w-full h-full">
+
+      <!-- Full-Bleed Canvas Board -->
+      <div id="board-container" class="flex-1 w-full h-full relative cursor-crosshair overflow-hidden">
+        <!-- Canvas injected by BoardRenderer -->
+      </div>
+
+      <!-- Floating Sidebar (Top Right, completely clear of board) -->
+      <div id="game-sidebar" class="absolute top-4 right-4 z-20 pointer-events-auto flex flex-col gap-2.5 w-44">
+        <!-- Scores Card -->
+        <div class="border border-neutral-800 bg-neutral-950/90 backdrop-blur rounded-lg p-2.5 shadow-xl flex flex-col gap-1 max-h-52 overflow-y-auto">
+          <div class="flex items-center justify-between text-[10px] font-mono uppercase text-neutral-500 border-b border-neutral-800 pb-1 mb-1">
+            <span>Punteggi</span>
+            <span id="cue-giver-name" class="text-neutral-400">Giver</span>
+          </div>
+          <div id="leaderboard-list" class="flex flex-col gap-1"></div>
+        </div>
+
+        <!-- Guess Selection Card (Never overlaps the board) -->
+        <div id="game-bottom-action-bar" class="hidden border border-neutral-800 bg-neutral-950/95 backdrop-blur rounded-lg p-2.5 shadow-xl flex flex-col gap-2">
+          <div class="flex items-center justify-between text-[10px] font-mono uppercase text-neutral-400 border-b border-neutral-800 pb-1">
+            <span>La tua Scelta</span>
+            <span id="guesser-turn-badge" class="text-amber-400 font-bold text-[10px]"></span>
+          </div>
+          <div class="flex items-center gap-2.5 py-0.5">
+            <div id="selected-coord-swatch" class="w-7 h-7 rounded border border-neutral-700 shrink-0"></div>
+            <div class="flex flex-col">
+              <span class="text-[9px] text-neutral-500 uppercase font-mono">Casella</span>
+              <span id="selected-coord-label" class="font-mono font-bold text-white text-sm leading-none">Nessuna</span>
+            </div>
+          </div>
+          <button id="btn-confirm-guess" class="btn-clean-primary w-full py-2 text-xs font-semibold disabled:opacity-35 disabled:cursor-not-allowed">
+            Conferma Scelta
+          </button>
+        </div>
+
+        <!-- Next Round Action (shown during reveal) -->
+        <div id="sidebar-reveal-actions" class="hidden">
+          <button id="btn-advance-round" class="btn-clean-primary w-full py-2 text-xs font-semibold">
+            Prossimo Turno &rarr;
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating Navigation & Zoom Controls (Bottom Right) -->
+      <div class="zoom-controls">
+        <!-- Pan Controls (D-pad) -->
+        <div class="pan-controls-grid">
+          <div></div>
+          <button id="btn-pan-up" class="zoom-btn" title="Muovi Su" aria-label="Muovi Su">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+          </button>
+          <div></div>
+          <button id="btn-pan-left" class="zoom-btn" title="Muovi a Sinistra" aria-label="Muovi a Sinistra">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          <button id="btn-zoom-reset" class="zoom-btn font-mono text-[10px] font-bold tracking-wider" title="Centra e Adatta">
+            FIT
+          </button>
+          <button id="btn-pan-right" class="zoom-btn" title="Muovi a Destra" aria-label="Muovi a Destra">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          <div></div>
+          <button id="btn-pan-down" class="zoom-btn" title="Muovi Giù" aria-label="Muovi Giù">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div></div>
+        </div>
+        <div class="flex gap-1.5 mt-1.5">
+          <button id="btn-zoom-in" class="zoom-btn flex-1" title="Ingrandisci" aria-label="Ingrandisci">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <button id="btn-zoom-out" class="zoom-btn flex-1" title="Rimpicciolisci" aria-label="Rimpicciolisci">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Modals -->
+
+  <!-- Modal 1: Pass Device Curtain -->
+  <div id="modal-pass-curtain" class="modal-overlay hidden">
+    <div class="modal-card text-center max-w-sm">
+      <h3 class="text-lg font-bold mb-1 text-white">Pass to <span id="curtain-player-name" class="text-white underline">Player</span></h3>
+      <p class="text-xs text-neutral-400 mb-6 leading-relaxed">
+        Secret card view. Ensure other players cannot see the screen.
+      </p>
+      <button id="btn-reveal-secret-card" class="btn-clean-primary w-full py-2.5 text-xs font-semibold">
+        View Card
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal 2: Cue 1 Input -->
+  <div id="modal-cue-1" class="modal-overlay hidden">
+    <div class="modal-card max-w-md">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-3">Select Color & Submit Clue</h3>
+
+      <div class="grid grid-cols-2 gap-2.5 mb-4" id="card-swatches-grid"></div>
+
+      <div class="mb-3">
+        <label class="text-[11px] font-mono uppercase text-neutral-400 block mb-1">One-word clue</label>
+        <input id="input-cue-1-text" type="text" placeholder="e.g. Lavender, Flamingo, Glacier..."
+          class="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-neutral-500">
+        <div id="cue-1-error" class="text-[11px] text-red-400 mt-1 hidden"></div>
+      </div>
+
+      <div class="text-[11px] text-neutral-500 mb-4">
+        No direct color names (red, blue, etc.), board coordinates, or room items.
+      </div>
+
+      <button id="btn-submit-cue-1" class="btn-clean-primary w-full py-2.5 text-xs font-semibold disabled:opacity-40">
+        Submit Clue 1
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal 3: Cue 2 / Pass Modal -->
+  <div id="modal-cue-2" class="modal-overlay hidden">
+    <div class="modal-card max-w-md">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-2">Second Clue (Max 2 words)</h3>
+      <p class="text-xs text-neutral-500 mb-4">You may pass if satisfied with the first round of guesses.</p>
+
+      <div class="mb-4">
+        <input id="input-cue-2-text" type="text" placeholder="Two-word clue..."
+          class="w-full bg-neutral-900 border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-neutral-500">
+        <div id="cue-2-error" class="text-[11px] text-red-400 mt-1 hidden"></div>
+      </div>
+
+      <div class="flex gap-2">
+        <button id="btn-pass-cue-2" class="btn-clean-secondary flex-1 py-2 text-xs font-semibold">
+          Pass
+        </button>
+        <button id="btn-submit-cue-2" class="btn-clean-primary flex-1 py-2 text-xs font-semibold">
+          Submit Clue 2
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: Round Results -->
+  <div id="modal-round-summary" class="modal-overlay hidden">
+    <div class="modal-card max-w-sm">
+      <div class="text-center mb-3">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-400">Round <span id="summary-round-num">1</span> Results</h3>
+        <p class="text-xs text-neutral-500">Target was <span id="summary-target-coord" class="font-mono text-white font-bold">M15</span></p>
+      </div>
+
+      <div class="border border-neutral-800 bg-neutral-900/60 rounded p-3 mb-4 text-xs space-y-1.5" id="summary-points-breakdown"></div>
+
+      <button id="btn-dismiss-summary" class="btn-clean-primary w-full py-2 text-xs font-semibold">
+        Continue
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal 5: Game Over -->
+  <div id="modal-game-over" class="modal-overlay hidden">
+    <div class="modal-card text-center max-w-sm">
+      <h3 class="text-lg font-bold mb-1 text-white">Final Standings</h3>
+      <div id="podium-list" class="flex flex-col gap-1.5 my-4"></div>
+      <button id="btn-play-again" class="btn-clean-primary w-full py-2 text-xs font-semibold">
+        New Game
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal 6: Rules -->
+  <div id="modal-rules" class="modal-overlay hidden">
+    <div class="modal-card max-w-md max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between pb-2 border-b border-neutral-800 mb-3">
+        <h3 class="text-xs font-mono font-bold uppercase text-neutral-400">Hues & Cues Rules</h3>
+        <button id="btn-close-rules" class="text-neutral-500 hover:text-white text-sm">&times;</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto text-xs space-y-3 pr-1 text-neutral-300 leading-relaxed font-sans">
+        <div>
+          <h4 class="font-bold text-white mb-0.5">Objective</h4>
+          <p class="text-neutral-400">Give one- and two-word clues to guide guessers toward a specific color on the 480-square board.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-0.5">Clue Restrictions</h4>
+          <ul class="list-disc pl-4 space-y-0.5 text-neutral-400">
+            <li>No basic color names (red, blue, green, yellow, orange, purple, pink, brown, white, black, grey).</li>
+            <li>No board coordinates (e.g. "K15") or positional references ("top", "middle").</li>
+            <li>No room items.</li>
+            <li>Cue 1: exactly 1 word. Cue 2: at most 2 words (cannot use "lighter" or "darker").</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-0.5">Scoring</h4>
+          <ul class="list-disc pl-4 space-y-0.5 text-neutral-400">
+            <li>Exact square: 3 points.</li>
+            <li>Inside 3&times;3 frame: 2 points.</li>
+            <li>Outer 5&times;5 boundary: 1 point.</li>
+            <li>Cue Giver scores 1 point per guess inside the 3&times;3 frame (2 points in 3-player games). Max 9.</li>
+          </ul>
+        </div>
+      </div>
+
+      <button id="btn-rules-got-it" class="btn-clean-secondary w-full py-2 text-xs font-semibold mt-3">
+        Close
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="/static/js/sound_fx.js?v=11"></script>
+  <script src="/static/js/board_renderer.js?v=11"></script>
+  <script src="/static/js/offline_engine.js?v=11"></script>
+  <script src="/static/js/room_client.js?v=11"></script>
+  <script src="/static/js/app.js?v=11"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js?v=11').then((reg) => reg.update()).catch(() => {});
+      });
+    }
+
+    document.getElementById('btn-fullscreen-toggle').addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+  </script>
+</body>
+</html>
