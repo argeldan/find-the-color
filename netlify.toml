@@ -1,0 +1,15 @@
+# Static deployment of the Hues & Cues frontend.
+# The app is plain HTML/CSS/JS in `static/` with no build step, so no build
+# command or Node version is required. The Python FastAPI server (server/) is
+# not deployed: Netlify does not run Python servers or WebSockets.
+[build]
+  publish = "static"
+  command = ""
+
+# The FastAPI server served the files in `static/` under the `/static/` prefix
+# (e.g. /static/js/app.js) and index.html at `/`. Map that prefix back to the
+# publish root so the existing asset URLs keep working without code changes.
+[[redirects]]
+  from = "/static/*"
+  to = "/:splat"
+  status = 200
